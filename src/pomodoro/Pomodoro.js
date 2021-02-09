@@ -63,12 +63,14 @@ function Pomodoro() {
       break;
     }
     output.remaining = isFocus ? output.focus : output.unfocus;
+    output.session = output.remaining;
     setDuration({...output});
 
   }
   function Reset(){
     setIsTimerRunning(false);
     setIsSession(false);
+    setIsFocus(true);
     let output = duration;
     output.remaining = output.session;
     setDuration({...output});
@@ -184,8 +186,8 @@ function PausePlayButtons(){
                <span
                 className={classNames({
                   oi: true,
-                  "oi-media-stop": !isTimerRunning,
-                  "oi-media-stop": isTimerRunning,
+                  "oi-media-stop": !isSession,
+                  "oi-media-stop": isSession,
                 })}
                 />
               
