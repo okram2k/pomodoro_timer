@@ -88,14 +88,10 @@ function Pomodoro() {
                 className="btn btn-secondary"
                 data-testid="decrease-focus"
                 value="decfocus"
-                disabled= {isTimerRunning}
+                disabled= {isSession}
                 onClick={plusMinusHandler}
               >
-                <span className={classNames({
-                  "oi": true,
-                  "oi-minus-play": isTimerRunning,
-                  'oi-minus-pause': !isTimerRunning
-                })}/> -
+                -
               </button>
               {/* TODO: Implement increasing focus duration  and disable during a focus or break session */}
               <button
@@ -103,15 +99,10 @@ function Pomodoro() {
                 className="btn btn-secondary"
                 data-testid="increase-focus"
                 value="incfocus"
-                disabled= {isTimerRunning}
+                disabled= {isSession}
                 onClick={plusMinusHandler}
-              >
-                <span className={classNames({
-                "oi": true,
-                "oi-plus-play": isTimerRunning,
-                'oi-plus-pause': !isTimerRunning
-              })}/>
-                +
+              >+
+                
               </button>
             </div>
           </div>
@@ -134,15 +125,10 @@ function Unfocus(){
                   className="btn btn-secondary"
                   data-testid="decrease-break"
                   value="decbreak"
-                  disabled= {isTimerRunning}
+                  disabled= {isSession}
                   onClick={plusMinusHandler}
-                >
-                  <span className={classNames({
-                  "oi": true,
-                  "oi-minus-play": isTimerRunning,
-                  'oi-minus-pause': !isTimerRunning
-                })}/>
-                -
+                >-
+                
                 </button>
                 {/* TODO: Implement increasing break duration and disable during a focus or break session*/}
                 <button
@@ -150,15 +136,10 @@ function Unfocus(){
                   className="btn btn-secondary"
                   data-testid="increase-break"
                   value="incbreak"
-                  disabled= {isTimerRunning}
+                  disabled= {isSession}
                   onClick={plusMinusHandler}
-                >
-                  <span className={classNames({
-                    "oi": true,
-                    "oi-plus-play": isTimerRunning,
-                    'oi-plus-pause': !isTimerRunning
-                  })}/>
-                  +
+                >+
+                  
                 </button>
               </div>
             </div>
@@ -190,7 +171,7 @@ function PausePlayButtons(){
                   "oi-media-pause": isTimerRunning,
                 })}
               />
-              >
+              
             </button>
             {/* TODO: Implement stopping the current focus or break session and disable when there is no active session */}
             <button
@@ -203,11 +184,10 @@ function PausePlayButtons(){
                <span
                 className={classNames({
                   oi: true,
-                  "oi-media-play": !isTimerRunning,
-                  "oi-media-pause": isTimerRunning,
+                  "oi-media-stop": !isTimerRunning,
+                  "oi-media-stop": isTimerRunning,
                 })}
-              />
-              ||
+                />
               
             </button>
           </div>
