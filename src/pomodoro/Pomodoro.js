@@ -95,7 +95,8 @@ function PauseButton(){
     })}/>
   );
 }
-function SessionCountdown(){
+function SessionCountdown(props){
+  let { focus, unfocus, session, remaining } = props;
   /* TODO: This area should show only when a focus or break session is running or pauses */
   if (isSession) {
     return(
@@ -105,13 +106,13 @@ function SessionCountdown(){
             {/* TODO: Update message below to include current session (Focusing or On Break) and total duration */}
             
               {isFocus ? (
-                <h2 data-testid="session-title"> Focusing for {secondsToDuration(duration.focus)} minutes</h2>
+                <h2 data-testid="session-title"> Focusing for {secondsToDuration(focus)} minutes</h2>
               ) : (
-                <h2 data-testid="session-title"> On Break for {secondsToDuration(duration.unfocus)} minutes</h2>
+                <h2 data-testid="session-title"> On Break for {secondsToDuration(unfocus)} minutes</h2>
               )}
             {/* TODO: Update message below to include time remaining in the current session */}
             <p className="lead" data-testid="session-sub-title">
-            {secondsToDuration(duration.remaining)} remaining
+            {secondsToDuration(remaining)} remaining
             </p>
             {!isTimerRunning ? (<h2>Paused</h2>) : (" ")}
           </div>
@@ -124,8 +125,8 @@ function SessionCountdown(){
             role="progressbar"
             aria-valuemin="0"
             aria-valuemax="100"
-            aria-valuenow={(duration.session - duration.remaining)/duration.session*100} // TODO: Increase aria-valuenow as elapsed time increases
-            style={{ width: `${(duration.session - duration.remaining)/duration.session*100}%` }} // TODO: Increase width % as elapsed time increases
+            aria-valuenow={(session - remaining)/session*100} // TODO: Increase aria-valuenow as elapsed time increases
+            style={{ width: `${(session - remaining)/session*100}%` }} // TODO: Increase width % as elapsed time increases
           />
         </div>
       </div>
@@ -139,19 +140,21 @@ function SessionCountdown(){
   return (<div></div>)
 }
 }
-function FocusTime(){
+function FocusTime(props){
+    let {time} = props;
   return (
     <span className="input-group-text" data-testid="duration-focus">
         {/* TODO: Update this text to display the current focus session duration */}
-      Focus Duration: {secondsToDuration(duration.focus)}
+      Focus Duration: {secondsToDuration(time)}
     </span>
   );
 }
-function UnfocusTime(){
+function UnfocusTime(props){
+  let {time} = props;
   return (
     <span className="input-group-text" data-testid="duration-break">
                 {/* TODO: Update this text to display the current break session duration */}
-                Break Duration: {secondsToDuration(duration.unfocus)}
+                Break Duration: {secondsToDuration(time)}
               </span>
   )
 }
@@ -160,7 +163,7 @@ function UnfocusTime(){
         <div className="row">
       <div className="col">
           <div className="input-group input-group-lg mb-2">
-            <FocusTime />
+            <FocusTime time={duration.focus} />
             <div className="input-group-append">
               {/* TODO: Implement decreasing focus duration and disable during a focus or break session */}
               <button
@@ -190,7 +193,7 @@ function UnfocusTime(){
         <div className="col">
           <div className="float-right">
             <div className="input-group input-group-lg mb-2">
-              <UnfocusTime />
+              <UnfocusTime time ={duration.unfocus}/>
               <div className="input-group-append">
                 {/* TODO: Implement decreasing break duration and disable during a focus or break session*/}
                 <button
@@ -253,7 +256,11 @@ function UnfocusTime(){
         </div>
       </div>
       <div>
-        <SessionCountdown />
+        <SessionCountdown
+        focus={duration.focus}
+        unfocus={duration.unfocus}
+        session={duration.session}
+        remaining={duration.remaining}  />
         
       </div>
     </div>
