@@ -6,7 +6,6 @@ import {secondsToDuration} from '../utils/duration';
 
 
 function Pomodoro() {
-  
   // Timer starts out paused
   const [isTimerRunning, setIsTimerRunning] = useState(false);
   // default starting state of timers
@@ -14,6 +13,7 @@ function Pomodoro() {
     focus: 1500,
     unfocus: 300,
     remaining: 1500,
+
     session: 1500
   }
   const [duration, setDuration] = useState({...defaultDuration});
@@ -21,180 +21,78 @@ function Pomodoro() {
   const [isFocus, setIsFocus] = useState(true);
   // is this a session or not?
   const [isSession, setIsSession] = useState(false);
-  
+
+  function timesUp(){
+    setDuration({...duration,
+      remaining: isFocus ? duration.unfocus : duration.focus,
+      session: isFocus ? duration.unfocus : duration.focus
+    }) 
+    setIsFocus(!isFocus);
+    const audioEl = document.getElementsByClassName("audio-element")[0]
+    audioEl.play()
+    //new Audio(`${process.env.PUBLIC_URL}/alarm/submarine-dive-horn.mp3`).play();
+    //THIS CODE DOESN'T WORK! PLEASE REMOVE IT FROM THE INSTRUCTIONS!!!!
+
+  }
+
   useInterval(
     () => {
       // ToDo: Implement what should happen when the timer is running
-      let time = duration;
-      time.remaining -= 1;
-      if (time.remaining <= 0){
-        new Audio(`${process.env.PUBLIC_URL}/alarm/submarine-dive-horn.mp3`).play();
-        time.remaining = isFocus ? time.unfocus : time.focus;
-        time.session = time.remaining;
-        setIsFocus(!isFocus);
+       
+      if (isTimerRunning){
+        setDuration({...duration, remaining: duration.remaining - 1});
+        if (duration.remaining <= 0){
+          timesUp();
+        }
       }
-      setDuration({...time});
     },
     isTimerRunning ? 1000 : null
   );
 
   function playPause() {
-    setIsTimerRunning((prevState) => !prevState);
+    setIsTimerRunning(!isTimerRunning);
     setIsSession(true);
   }
   //increase and decrease the focus and break durations from button inputs
   function plusMinusHandler(input){
-    let output = duration;
-    
     switch (input.target.value){
-
+    //change max values to 300 and 60 on decfocus and dec break after done testing alarm!
     
     case "decfocus":
-      output.focus = Math.max(output.focus - 300, 300);
+      setDuration({...duration, focus: Math.max(duration.focus - 300, 300),
+        remaining: Math.max(duration.focus - 300, 300),
+        session: Math.max(duration.focus - 300, 300)});
       break;
     case "incfocus":
-      output.focus = Math.min(output.focus + 300, 3600);
+      setDuration({...duration, focus: Math.min(duration.focus + 300, 3600),
+        remaining: Math.min(duration.focus + 300, 3600),
+        session: Math.min(duration.focus + 300, 3600)});
       break;
     case "decbreak":
-      output.unfocus = Math.max(output.unfocus - 60, 60);
+      setDuration({...duration, unfocus: Math.max(duration.unfocus - 60, 60)});
+      
       break;
     case "incbreak":
-      output.unfocus = Math.min(output.unfocus + 60, 900);
+      setDuration({...duration, unfocus: Math.min(duration.unfocus + 60, 900)});
       break;
     }
-    output.remaining = isFocus ? output.focus : output.unfocus;
-    output.session = output.remaining;
-    setDuration({...output});
+    
 
   }
   function Reset(){
     setIsTimerRunning(false);
     setIsSession(false);
     setIsFocus(true);
-    let output = duration;
-    output.remaining = output.session;
-    setDuration({...output});
+    setDuration({...duration, remaining: duration.focus, session: duration.focus})
   }
-  function Focus(){
-    return (
-      <div className="col">
-          <div className="input-group input-group-lg mb-2">
-            <span className="input-group-text" data-testid="duration-focus">
-              {/* TODO: Update this text to display the current focus session duration */}
-              Focus Duration: {secondsToDuration(duration.focus)}
-            </span>
-            <div className="input-group-append">
-              {/* TODO: Implement decreasing focus duration and disable during a focus or break session */}
-              <button
-                type="button"
-                className="btn btn-secondary"
-                data-testid="decrease-focus"
-                value="decfocus"
-                disabled= {isSession}
-                onClick={plusMinusHandler}
-              >
-                -
-              </button>
-              {/* TODO: Implement increasing focus duration  and disable during a focus or break session */}
-              <button
-                type="button"
-                className="btn btn-secondary"
-                data-testid="increase-focus"
-                value="incfocus"
-                disabled= {isSession}
-                onClick={plusMinusHandler}
-              >+
-                
-              </button>
-            </div>
-          </div>
-        </div>
-    );
-  }
-function Unfocus(){
+
+function PauseButton(){
   return (
-        <div className="col">
-          <div className="float-right">
-            <div className="input-group input-group-lg mb-2">
-              <span className="input-group-text" data-testid="duration-break">
-                {/* TODO: Update this text to display the current break session duration */}
-                Break Duration: {secondsToDuration(duration.unfocus)}
-              </span>
-              <div className="input-group-append">
-                {/* TODO: Implement decreasing break duration and disable during a focus or break session*/}
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  data-testid="decrease-break"
-                  value="decbreak"
-                  disabled= {isSession}
-                  onClick={plusMinusHandler}
-                >-
-                
-                </button>
-                {/* TODO: Implement increasing break duration and disable during a focus or break session*/}
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  data-testid="increase-break"
-                  value="incbreak"
-                  disabled= {isSession}
-                  onClick={plusMinusHandler}
-                >+
-                  
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      
-  );
-}
-function PausePlayButtons(){
-  return (
-      <div className="row">
-        <div className="col">
-          <div
-            className="btn-group btn-group-lg mb-2"
-            role="group"
-            aria-label="Timer controls"
-          >
-            <button
-              type="button"
-              className="btn btn-primary"
-              data-testid="play-pause"
-              title="Start or pause timer"
-              onClick={playPause}
-            >
-              <span
-                className={classNames({
-                  oi: true,
-                  "oi-media-play": !isTimerRunning,
-                  "oi-media-pause": isTimerRunning,
-                })}
-              />
-              
-            </button>
-            {/* TODO: Implement stopping the current focus or break session and disable when there is no active session */}
-            <button
-              type="button"
-              className="btn btn-secondary"
-              title="Stop the session"
-              onClick={Reset}
-              disabled= {!isSession}
-            >
-               <span
-                className={classNames({
-                  oi: true,
-                  "oi-media-stop": !isSession,
-                  "oi-media-stop": isSession,
-                })}
-                />
-              
-            </button>
-          </div>
-        </div>
-      </div>
+    <span className={classNames({
+      "oi": true,
+      "oi-media-play": !isTimerRunning,
+      'oi-media-pause': isTimerRunning
+    })}/>
   );
 }
 function SessionCountdown(){
@@ -231,6 +129,9 @@ function SessionCountdown(){
           />
         </div>
       </div>
+      <audio className="audio-element">
+          <source src="https://assets.coderrocketfuel.com/pomodoro-times-up.mp3"></source>
+        </audio>
     </div>
   </div>
     )
@@ -238,13 +139,119 @@ function SessionCountdown(){
   return (<div></div>)
 }
 }
+function FocusTime(){
+  return (
+    <span className="input-group-text" data-testid="duration-focus">
+        {/* TODO: Update this text to display the current focus session duration */}
+      Focus Duration: {secondsToDuration(duration.focus)}
+    </span>
+  );
+}
+function UnfocusTime(){
+  return (
+    <span className="input-group-text" data-testid="duration-break">
+                {/* TODO: Update this text to display the current break session duration */}
+                Break Duration: {secondsToDuration(duration.unfocus)}
+              </span>
+  )
+}
   return (
     <div className="pomodoro">
-      <div className="row">
-        <Focus />
-        <Unfocus />
+        <div className="row">
+      <div className="col">
+          <div className="input-group input-group-lg mb-2">
+            <FocusTime />
+            <div className="input-group-append">
+              {/* TODO: Implement decreasing focus duration and disable during a focus or break session */}
+              <button
+                type="button"
+                className="btn btn-secondary"
+                data-testid="decrease-focus"
+                value="decfocus"
+                disabled= {isSession}
+                onClick={plusMinusHandler}
+              >
+                -
+              </button>
+              {/* TODO: Implement increasing focus duration  and disable during a focus or break session */}
+              <button
+                type="button"
+                className="btn btn-secondary"
+                data-testid="increase-focus"
+                value="incfocus"
+                disabled= {isSession}
+                onClick={plusMinusHandler}
+              >
+               +
+              </button>
+            </div>
+          </div>
+        </div>
+        <div className="col">
+          <div className="float-right">
+            <div className="input-group input-group-lg mb-2">
+              <UnfocusTime />
+              <div className="input-group-append">
+                {/* TODO: Implement decreasing break duration and disable during a focus or break session*/}
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  data-testid="decrease-break"
+                  value="decbreak"
+                  disabled= {isSession}
+                  onClick={plusMinusHandler}
+                >
+                -
+                </button>
+                {/* TODO: Implement increasing break duration and disable during a focus or break session*/}
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  data-testid="increase-break"
+                  value="incbreak"
+                  disabled= {isSession}
+                  onClick={plusMinusHandler}
+                >
+                  +
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-        <PausePlayButtons />
+      <div className="row">
+        <div className="col">
+          <div
+            className="btn-group btn-group-lg mb-2"
+            role="group"
+            aria-label="Timer controls"
+          >
+            <button
+              type="button"
+              className="btn btn-primary"
+              data-testid="play-pause"
+              title="Start or pause timer"
+              onClick={playPause}
+            > 
+              <PauseButton />
+              &nbsp;
+              
+            </button>
+            {/* TODO: Implement stopping the current focus or break session and disable when there is no active session */}
+            <button
+              type="button"
+              className="btn btn-secondary"
+              title="Stop the session"
+              data-testid="stop"
+              onClick={Reset}
+              disabled= {!isSession}
+            > 
+               <span className="oi oi-media-stop" />
+               &nbsp;
+            </button>
+          </div>
+        </div>
+      </div>
       <div>
         <SessionCountdown />
         
